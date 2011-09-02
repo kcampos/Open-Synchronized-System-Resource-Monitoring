@@ -1,0 +1,28 @@
+---
+:base_log_name: 'test'
+:hosts:
+    test-server1.domain.com:
+        :pids: '19550'
+        :http_port: '80'
+        :user: 'unix_user'
+        :phases:
+            1:
+                :interval: "2"
+                :amount: "30"
+            2:
+                :interval: "2"
+                :amount: "15"
+    test-server2.domain.com:
+        :pids: '29018'
+        :http_port: '80'
+        :user: 'unix_user'
+        :phases:
+            1:
+                :interval: "2"
+                :amount: "30"
+            2:
+                :interval: "3"
+                :amount: "15"
+            3:
+                :interval: "3"
+                :amount: "20"
