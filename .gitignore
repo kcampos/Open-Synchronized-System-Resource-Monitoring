@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 logs/*.log
 config/*.yaml
+=======
+logs/*log
+config/*yaml
+>>>>>>> future-dev

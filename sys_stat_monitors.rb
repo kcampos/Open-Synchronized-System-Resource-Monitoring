@@ -85,10 +85,31 @@ end
 
 # run_cmd
 def run_remote_cmd(user, host, cmd, cmd_log, cmd_path=@options[:cmd_path], forked=true)
-  debug_msg("exec: run_remote_cmd(#{user}, #{host}, #{cmd}, #{cmd_log}, #{forked})")
+  debug_msg("exec: run_remote_cmd(#{user}, #{host}, #{cmd}, #{cmd_log}, #{cmd_path} #{forked})")
   forked ? fork { `ssh #{user}@#{host} "#{cmd_path}#{cmd}" > #{cmd_log}` } : `ssh #{user}@#{host} "#{cmd_path}#{cmd}" > #{cmd_log}`
 end
 
+
+# Figure out which pids we can detach and which we can wait on
+# This may be useless and we may be able to just wait on all pids. no harm no foul
+def do_wait(pid_times)
+  
+  highest_waits = pid_times.select { |k,v| v == pid_times.values.max } # has for highest pid wait times
+  pid_times.reject! { |k,v| v == highest_waits.values.max } # removes those pids from the hash
+  
+  # Don't wait for these pids
+  pid_times.each_pair do |pid, total_time|
+    debug_msg("Detaching pid: #{pid}")
+    Process.detach(pid)
+  end
+  
+  # Wait for whatever the longest pid wait time is
+  highest_waits.each_pair do |pid, total_time|
+    debug_msg("Waiting for pid: #{pid}")
+    Process.waitpid(pid)
+  end
+  
+end
 
 # Start monitors
 def start_monitors
@@ -120,40 +141,50 @@ def start_monitors
 
             debug_msg("Working with pid [#{pid}]")
             p[:host][host][:phase][phase][:pids][pid] = {}
+            p[:host][host][:phase][phase][:pids][pid][:total_time] = {}
             p[:host][host][:phase][phase][:pids][pid][:fpid] = fork do
 
               info_msg("Launching phase #{phase} monitors on #{host} for pid #{pid}... (#{Time.now.to_s})")
 
-              # Forked memory cmd
-              p[:host][host][:phase][phase][:pids][pid][:mem] = run_remote_cmd(@config[:hosts][host][:user], host, 
-                "mem-stat.plx #{pid} #{@config[:hosts][host][:phases][phase][:interval]} #{@config[:hosts][host][:phases][phase][:amount]}",
-                "#{@config[:base_log_name]}-#{host}-phase#{phase}-mem_stats.log"
-              )
+              if(@config[:hosts][host][:phases][phase][:mem])
+                # Fork memory command
+                p[:host][host][:phase][phase][:pids][pid][:mem] = run_remote_cmd(@config[:hosts][host][:user], host, 
+                  "mem-stat.plx #{pid} #{@config[:hosts][host][:phases][phase][:mem][:interval]} #{@config[:hosts][host][:phases][phase][:mem][:amount]}",
+                  "#{@config[:base_log_name]}-#{host}-phase#{phase}-mem_stats.log"
+                )
+                
+                debug_msg("#{host}: Forked mem cmd pid return: [#{p[:host][host][:phase][phase][:pids][pid][:mem]}]")
+                # Store total mem monitoring time
+                p[:host][host][:phase][phase][:pids][pid][:total_time][p[:host][host][:phase][phase][:pids][pid][:mem]] = @config[:hosts][host][:phases][phase][:mem][:interval].to_i * @config[:hosts][host][:phases][phase][:mem][:amount].to_i
+              end
 
-              # Don't wait
-              debug_msg("Forked mem cmd pid return: [#{p[:host][host][:phase][phase][:pids][pid][:mem]}]")
-              Process.detach(p[:host][host][:phase][phase][:pids][pid][:mem])
-
-              # Forked net cmd
-              p[:host][host][:phase][phase][:pids][pid][:net] = run_remote_cmd(@config[:hosts][host][:user], host, 
-                "net-mon.plx #{@config[:hosts][host][:phases][phase][:interval]} #{@config[:hosts][host][:phases][phase][:amount]} #{@config[:hosts][host][:http_port]}",
-                "#{@config[:base_log_name]}-#{host}-phase#{phase}-net_mon.log"
-              )
-
-              # Don't wait
-              debug_msg("Forked net cmd pid return: [#{p[:host][host][:phase][phase][:pids][pid][:net]}]")
-              Process.detach(p[:host][host][:phase][phase][:pids][pid][:net])
-
-              # Forked cpu cmd
-              p[:host][host][:phase][phase][:pids][pid][:cpu] = run_remote_cmd(@config[:hosts][host][:user], host, 
-                "sar -u -x #{pid} #{@config[:hosts][host][:phases][phase][:interval]} #{@config[:hosts][host][:phases][phase][:amount]}",
-                "#{@config[:base_log_name]}-#{host}-phase#{phase}-cpu_stats.log", nil
-              )
-
+              if(@config[:hosts][host][:phases][phase][:net])
+                # Forked net cmd
+                p[:host][host][:phase][phase][:pids][pid][:net] = run_remote_cmd(@config[:hosts][host][:user], host, 
+                  "net-mon.plx #{@config[:hosts][host][:phases][phase][:net][:interval]} #{@config[:hosts][host][:phases][phase][:net][:amount]} #{@config[:hosts][host][:http_port]}",
+                  "#{@config[:base_log_name]}-#{host}-phase#{phase}-net_mon.log"
+                )
+                
+                debug_msg("#{host}: Forked net cmd pid return: [#{p[:host][host][:phase][phase][:pids][pid][:net]}]")
+                # Store total net monitoring time
+                p[:host][host][:phase][phase][:pids][pid][:total_time][p[:host][host][:phase][phase][:pids][pid][:net]] = @config[:hosts][host][:phases][phase][:net][:interval].to_i * @config[:hosts][host][:phases][phase][:net][:amount].to_i
+              end
+              
+              if(@config[:hosts][host][:phases][phase][:cpu])
+                # Forked cpu cmd
+                p[:host][host][:phase][phase][:pids][pid][:cpu] = run_remote_cmd(@config[:hosts][host][:user], host, 
+                  "sar -u -x #{pid} #{@config[:hosts][host][:phases][phase][:cpu][:interval]} #{@config[:hosts][host][:phases][phase][:cpu][:amount]}",
+                  "#{@config[:base_log_name]}-#{host}-phase#{phase}-cpu_stats.log", nil
+                )
+                
+                debug_msg("#{host}: Forked cpu cmd pid return: [#{p[:host][host][:phase][phase][:pids][pid][:cpu]}]")
+                # Store total cpu monitoring time
+                p[:host][host][:phase][phase][:pids][pid][:total_time][p[:host][host][:phase][phase][:pids][pid][:cpu]] = @config[:hosts][host][:phases][phase][:cpu][:interval].to_i * @config[:hosts][host][:phases][phase][:cpu][:amount].to_i
+              end
+              
               # WAIT
-              debug_msg("Forked cpu cmd pid return: [#{p[:host][host][:phase][phase][:pids][pid][:cpu]}]")
               info_msg("Waiting for monitors for phase #{phase} on #{host} to stop...")
-              Process.waitpid(p[:host][host][:phase][phase][:pids][pid][:cpu])
+              do_wait(p[:host][host][:phase][phase][:pids][pid][:total_time])
               info_msg("...Monitors for phase #{phase} on #{host} stopped (#{Time.now.to_s})")
 
             end #end pids fork
