@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+# Must use Ruby 1.9.2+
+
 require 'optparse'
 require 'yaml'
 
@@ -85,7 +87,7 @@ end
 
 # run_cmd
 def run_remote_cmd(user, host, cmd, cmd_log, cmd_path=@options[:cmd_path], forked=true)
-  debug_msg("exec: run_remote_cmd(#{user}, #{host}, #{cmd}, #{cmd_log}, #{cmd_path} #{forked})")
+  debug_msg("exec: run_remote_cmd(#{user}, #{host}, #{cmd}, #{cmd_log}, #{cmd_path}, #{forked})")
   forked ? fork { `ssh #{user}@#{host} "#{cmd_path}#{cmd}" > #{cmd_log}` } : `ssh #{user}@#{host} "#{cmd_path}#{cmd}" > #{cmd_log}`
 end
 
@@ -94,8 +96,11 @@ end
 # This may be useless and we may be able to just wait on all pids. no harm no foul
 def do_wait(pid_times)
   
+  debug_msg("in pid_times: #{pid_times.inspect}")
   highest_waits = pid_times.select { |k,v| v == pid_times.values.max } # has for highest pid wait times
+  debug_msg("highest_waits: #{highest_waits.inspect}")
   pid_times.reject! { |k,v| v == highest_waits.values.max } # removes those pids from the hash
+  debug_msg("out  pid_times: #{pid_times.inspect}")
   
   # Don't wait for these pids
   pid_times.each_pair do |pid, total_time|
@@ -148,8 +153,10 @@ def start_monitors
 
               if(@config[:hosts][host][:phases][phase][:mem])
                 # Fork memory command
-                p[:host][host][:phase][phase][:pids][pid][:mem] = run_remote_cmd(@config[:hosts][host][:user], host, 
-                  "mem-stat.plx #{pid} #{@config[:hosts][host][:phases][phase][:mem][:interval]} #{@config[:hosts][host][:phases][phase][:mem][:amount]}",
+                mem_cmd = (pid == 'ALL' ? "sar -r #{@config[:hosts][host][:phases][phase][:mem][:interval]} #{@config[:hosts][host][:phases][phase][:mem][:amount]}" :
+                                          "mem-stat.plx #{pid} #{@config[:hosts][host][:phases][phase][:mem][:interval]} #{@config[:hosts][host][:phases][phase][:mem][:amount]}")
+                
+                p[:host][host][:phase][phase][:pids][pid][:mem] = run_remote_cmd(@config[:hosts][host][:user], host, mem_cmd,
                   "#{@config[:base_log_name]}-#{host}-phase#{phase}-mem_stats.log"
                 )
                 
@@ -172,8 +179,10 @@ def start_monitors
               
               if(@config[:hosts][host][:phases][phase][:cpu])
                 # Forked cpu cmd
-                p[:host][host][:phase][phase][:pids][pid][:cpu] = run_remote_cmd(@config[:hosts][host][:user], host, 
-                  "sar -u -x #{pid} #{@config[:hosts][host][:phases][phase][:cpu][:interval]} #{@config[:hosts][host][:phases][phase][:cpu][:amount]}",
+                cpu_cmd = (pid == 'ALL' ? "sar -u #{@config[:hosts][host][:phases][phase][:cpu][:interval]} #{@config[:hosts][host][:phases][phase][:cpu][:amount]}" :
+                                          "sar -u -x #{pid} #{@config[:hosts][host][:phases][phase][:cpu][:interval]} #{@config[:hosts][host][:phases][phase][:cpu][:amount]}")
+                                          
+                p[:host][host][:phase][phase][:pids][pid][:cpu] = run_remote_cmd(@config[:hosts][host][:user], host, cpu_cmd,
                   "#{@config[:base_log_name]}-#{host}-phase#{phase}-cpu_stats.log", nil
                 )
                 

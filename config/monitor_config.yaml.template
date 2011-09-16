@@ -1,7 +1,7 @@
 ---
-:base_log_name: 'test'
+:base_log_name: '1sesh_test'
 :hosts:
-    test-server1.com:
+    test-serv1.com:
         :pids: '19710'
         :http_port: '80'
         :user: 'unix_user'
@@ -9,14 +9,14 @@
             1:
                 :cpu:
                     :interval: "2"
-                    :amount: "30"
+                    :amount: "60"
                 :mem:
                     :interval: "2"
-                    :amount: "30"
+                    :amount: "60"
                 :net:
                     :interval: "2"
-                    :amount: "60"
-    test-server2.com:
+                    :amount: "150"
+    test-serv2.com:
         :pids: '11346'
         :http_port: '80'
         :user: 'unix_user'
@@ -24,10 +24,25 @@
             1:
                 :cpu:
                     :interval: "2"
-                    :amount: "30"
+                    :amount: "60"
                 :mem:
                     :interval: "2"
-                    :amount: "30"
+                    :amount: "60"
                 :net:
                     :interval: "2"
+                    :amount: "150"
+    test-serv3.com:
+        :pids: 'ALL'
+        :http_port: '1521'
+        :user: 'unix_user'
+        :phases:
+            1:
+                :cpu:
+                    :interval: "2"
                     :amount: "60"
+                :mem:
+                    :interval: "2"
+                    :amount: "60"
+                :net:
+                    :interval: "2"
+                    :amount: "150"
