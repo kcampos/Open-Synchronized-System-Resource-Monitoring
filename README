@@ -1,3 +1,20 @@
 Utility for launching synchronized system resource monitors across an array of unix machines.
 
-...more to come...
+Required:
+
+ - Ruby 1.9.2 on host you are launching monitors from
+ - perl 5+ on hosts you are monitoring
+ - ssh with no auth (use public/private ssh key match)
+
+Setup:
+
+1. Copy perl monitor scripts to all hosts you wish to monitor. By default sys_stat_monitors expects them to be in $HOME/bin for the unix user you specify in the yaml config
+
+2. Copy config/monitor_config.yaml.template to config/monitor_config.yaml and modify with your environment settings
+
+Usage: sys_stat_monitors.rb [OPTIONS]
+    -h, --help                       Display help screen
+    -c, --config FILE                path to yaml config file (MANDATORY)
+    -l, --log FILE                   path to log output
+    -d, --debug                      enable debug logging
+    -p, --path                       path to monitoring commands
