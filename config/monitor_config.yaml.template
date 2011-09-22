@@ -15,7 +15,7 @@
                     :amount: "60"
                 :net:
                     :interval: "2"
-                    :amount: "150"
+                    :amount: "200"
     test-serv2.com:
         :pids: '11346'
         :http_port: '80'
@@ -30,7 +30,7 @@
                     :amount: "60"
                 :net:
                     :interval: "2"
-                    :amount: "150"
+                    :amount: "200"
     test-serv3.com:
         :pids: 'ALL'
         :http_port: '1521'
@@ -45,4 +45,4 @@
                     :amount: "60"
                 :net:
                     :interval: "2"
-                    :amount: "150"
+                    :amount: "200"
