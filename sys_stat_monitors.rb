@@ -142,7 +142,7 @@ def start_monitors
         p[:host][host][:phase][phase][:pids] = {}
         p[:host][host][:phase][phase][:fpid] = fork do # start phase fork
 
-          @config[:hosts][host][:pids].split(',').each do |pid|
+          @config[:hosts][host][:pids].each do |pid|
 
             debug_msg("Working with pid [#{pid}]")
             p[:host][host][:phase][phase][:pids][pid] = {}

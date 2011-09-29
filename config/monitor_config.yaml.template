@@ -2,7 +2,8 @@
 :base_log_name: '1sesh_test'
 :hosts:
     test-serv1.com:
-        :pids: '19710'
+        :pids: 
+					- '19710'
         :http_port: '80'
         :user: 'unix_user'
         :phases:
@@ -17,7 +18,8 @@
                     :interval: "2"
                     :amount: "200"
     test-serv2.com:
-        :pids: '11346'
+        :pids: 
+					- '11346'
         :http_port: '80'
         :user: 'unix_user'
         :phases:
@@ -32,7 +34,8 @@
                     :interval: "2"
                     :amount: "200"
     test-db-serv.com:
-        :pids: 'ALL'
+        :pids: 
+					- 'ALL'
         :http_port: '1521'
         :user: 'unix_user'
         :sys_user: 'sys'
