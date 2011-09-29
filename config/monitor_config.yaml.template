@@ -31,10 +31,15 @@
                 :net:
                     :interval: "2"
                     :amount: "200"
-    test-serv3.com:
+    test-db-serv.com:
         :pids: 'ALL'
         :http_port: '1521'
         :user: 'unix_user'
+        :sys_user: 'sys'
+		    :sys_pass: 'fakeSysPass'
+		    :schemas:
+		        - 'SCHEMA_A'
+		        - 'SCHEMA_B'
         :phases:
             1:
                 :cpu:
@@ -46,3 +51,6 @@
                 :net:
                     :interval: "2"
                     :amount: "200"
+								:db:
+								    :interval: "5"
+								    :amount: "200"

@@ -191,6 +191,18 @@ def start_monitors
                 p[:host][host][:phase][phase][:pids][pid][:total_time][p[:host][host][:phase][phase][:pids][pid][:cpu]] = @config[:hosts][host][:phases][phase][:cpu][:interval].to_i * @config[:hosts][host][:phases][phase][:cpu][:amount].to_i
               end
               
+              if(@config[:hosts][host][:phases][phase][:db])
+                # Forked db cmd
+                p[:host][host][:phase][phase][:pids][pid][:db] = run_remote_cmd(@config[:hosts][host][:user], host, 
+                  "db_conn-mon.plx #{@config[:hosts][host][:phases][phase][:db][:interval]} #{@config[:hosts][host][:phases][phase][:db][:amount]} #{@config[:hosts][host][:sys_user]} #{@config[:hosts][host][:sys_pass]} #{@config[:hosts][host][:schemas].join(' ')}",
+                  "#{@config[:base_log_name]}-#{host}-phase#{phase}-db_conn_mon.log"
+                )
+                
+                debug_msg("#{host}: Forked db cmd pid return: [#{p[:host][host][:phase][phase][:pids][pid][:db]}]")
+                # Store total db monitoring time
+                p[:host][host][:phase][phase][:pids][pid][:total_time][p[:host][host][:phase][phase][:pids][pid][:db]] = @config[:hosts][host][:phases][phase][:db][:interval].to_i * @config[:hosts][host][:phases][phase][:db][:amount].to_i
+              end
+              
               # WAIT
               info_msg("Waiting for monitors for phase #{phase} on #{host} to stop...")
               do_wait(p[:host][host][:phase][phase][:pids][pid][:total_time])

@@ -10,6 +10,8 @@ Setup:
 
 1. Copy perl monitor scripts to all hosts you wish to monitor. By default sys_stat_monitors expects them to be in $HOME/bin for the unix user you specify in the yaml config
 
+NOTE: If you are using db_conn-mon.plx or :db trigger in your monitoring, you'll need to make sure the user you are ssh'ing in as has all the proper environment variables needed to run sqlplus. You can make sure of that by adding those keys in the user's .ssh/environment file and making sure 'PermitUserEnvironment' is set to yes in sshd_config
+
 2. Copy config/monitor_config.yaml.template to config/monitor_config.yaml and modify with your environment settings
 
 Usage: sys_stat_monitors.rb [OPTIONS]
