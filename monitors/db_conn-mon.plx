@@ -28,6 +28,7 @@ for ($i=1;$i<=$num_attempts;$i++)
 	print "$time\n";
 	print "$out\n";
 		
+	print 'END';
 	print '-' x 40;
 	print "\n";
 	
