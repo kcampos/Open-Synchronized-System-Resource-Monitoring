@@ -3,6 +3,10 @@ Utility for launching synchronized system resource monitors across an array of u
 Required:
 
  - Ruby 1.9.2 on host you are launching monitors from
+   - If you want to use the graphing option for parse_stat_logs.rb you'll need the following:
+     - Gem: rmagick (2.13.1+)
+     - Gem: gruff (0.3.6+)
+     - imagemagick (6.7.1+)
  - perl 5+ on hosts you are monitoring
  - ssh with no auth (use public/private ssh key match)
 
@@ -14,9 +18,21 @@ NOTE: If you are using db_conn-mon.plx or :db trigger in your monitoring, you'll
 
 2. Copy config/monitor_config.yaml.template to config/monitor_config.yaml and modify with your environment settings
 
+Execution:
+
+sys_stat_monitors.rb is the script that launches the monitors across your network.
+
 Usage: sys_stat_monitors.rb [OPTIONS]
     -h, --help                       Display help screen
     -c, --config FILE                path to yaml config file (MANDATORY)
     -l, --log FILE                   path to log output
     -d, --debug                      enable debug logging
     -p, --path                       path to monitoring commands
+
+parse_stat_logs.rb is a utility to parse the logs and extract the relevant data.
+
+Usage: parse_stat_logs.rb [OPTIONS]
+    -h, --help                       Display help screen
+    -n, --net FILE                   path to net stat file
+    -d, --db FILE                    path to db stat file
+    -g, --graph                      generate graphs
