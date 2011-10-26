@@ -184,11 +184,11 @@ end
 # DB session data
 class DbSessionStat
   
-  attr_reader :data, :col_data
+  attr_reader :data, :col_data, :file
   
   def initialize(file)
-    #@file = file
-    @data = parse_db_stat_file(file)
+    @file = file
+    @data = parse_db_stat_file
     @col_data = collect_data
   end
   
@@ -237,6 +237,45 @@ class DbSessionStat
     
   end
   
+  # Create graph png file
+  def graph(opts={})
+    
+    defaults = {
+      :num_x_labels => 5,
+      :graph_filename => "#{self.file}.png"
+    }
+    
+    opts = defaults.merge(opts)
+    
+    # Build label hash, always want first and last
+    label_interval = self.data.keys.size/opts[:num_x_labels]
+    label_index = 0
+    labels = {}
+    for i in 1..opts[:num_x_labels] do
+      labels[label_index] = self.data[label_index+1].keys[0].sub(/\s(AM|PM)/, '\1') #strip whitespace to conserve room
+      label_index += label_interval
+    end
+    
+    # Last entry
+    label_index = self.data.keys.sort.pop - 1
+    labels[label_index] = self.data[label_index].keys[0].sub(/\s(AM|PM)/, '\1')
+    
+    graph = Gruff::Line.new
+    graph.title = "DB Connection Statistics"
+    graph.labels = labels
+    
+    # Line for each Schema - Host
+    self.col_data.each_key do |schema|
+      self.col_data[schema].each_pair do |machine, sessions|
+        graph.data("#{schema} : #{machine}", sessions.collect{|sesh| sesh.to_i})
+      end
+    end
+    
+    graph.write opts[:graph_filename]
+    
+    puts "Wrote graph to: #{opts[:graph_filename]}"
+  end
+  
   # Options as far as what data to print
   def to_s(opts={})
     
@@ -280,8 +319,8 @@ class DbSessionStat
   
   private
   
-  def parse_db_stat_file(file)
-    fh = File.open(file)
+  def parse_db_stat_file
+    fh = File.open(@file)
     data = {}
     interval = 0
     
@@ -325,29 +364,28 @@ class DbSessionStat
       
     end
     
+    return data
     
-    # Gather session data into schema/machine hash collection
-    def collect_data
-      col_sessions = {}
-      
-      # Populate 
-      self.data.each_key do |interval|
-        self.data[interval].each_key do |timestamp|
-          self.data[interval][timestamp].each_key do |schema|
-            col_sessions[schema] = {} if(!col_sessions[schema])
-            self.data[interval][timestamp][schema].each_pair do |machine, sessions|
-              col_sessions[schema][machine] = [] if(!col_sessions[schema][machine])
-              col_sessions[schema][machine] << sessions
-            end
+  end
+  
+  # Gather session data into schema/machine hash collection
+  def collect_data
+    col_sessions = {}
+    
+    # Populate 
+    self.data.each_key do |interval|
+      self.data[interval].each_key do |timestamp|
+        self.data[interval][timestamp].each_key do |schema|
+          col_sessions[schema] = {} if(!col_sessions[schema])
+          self.data[interval][timestamp][schema].each_pair do |machine, sessions|
+            col_sessions[schema][machine] = [] if(!col_sessions[schema][machine])
+            col_sessions[schema][machine] << sessions
           end
         end
       end
-      
-      return col_sessions
-      
     end
     
-    return data
+    return col_sessions
     
   end
   
@@ -365,5 +403,6 @@ end
 if(options[:db_file])
   db = DbSessionStat.new(options[:db_file])
   db.to_s
+  db.graph if(options[:graph])
 end
 
