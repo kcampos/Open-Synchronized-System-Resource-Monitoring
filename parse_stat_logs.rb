@@ -72,11 +72,11 @@ class NetStat
   end
   
   def max
-    @values.last
+    @values.collect{|x| x.to_i}.sort.last
   end
   
   def min
-    @values.first
+    @values.collect{|x| x.to_i}.sort.first
   end
   
   def average
@@ -86,7 +86,8 @@ class NetStat
   end
   
   def median
-    @values[(@values.size / 2)]
+    vals = @values.collect{|x| x.to_i}.sort
+    vals[(@values.size / 2)]
   end
   
   def graph(opts={})
