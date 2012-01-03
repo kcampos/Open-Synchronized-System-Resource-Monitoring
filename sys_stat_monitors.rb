@@ -48,6 +48,12 @@ optparse = OptionParser.new do |opts|
     @options[:cmd_path] = path
   end
   
+  # Enable execution
+  @options[:execute] = true
+  opts.on('-n', '--no_execute', "only ingest config and don't execute") do
+    @options[:execute] = false
+  end
+  
 end
 
 optparse.parse!
@@ -240,7 +246,7 @@ debug_msg("OPTIONS: #{@options.inspect}")
 
 parse_config(@options[:config_file])
 
-start_monitors
+start_monitors if(@options[:execute])
 
 exit 0
 

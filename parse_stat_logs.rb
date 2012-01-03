@@ -334,7 +334,7 @@ class DbSessionStat
         interval += 1
         data[interval] = {}
         data[interval][timestamp] = {}
-                
+        
         # Ingest all the data for this section
         until(cur_line = fh.gets and cur_line =~ /^END/)
           
@@ -345,7 +345,7 @@ class DbSessionStat
             if(cur_line =~ /^(\w+)$/)
               schema = $1
               data[interval][timestamp][schema] = {} if(!data[interval][timestamp][schema])
-              
+
               # Now get the next line that has the machine and session count
               next_line = fh.gets
               if(next_line =~ /^([^\s]+)\s+(\d+)$/)
