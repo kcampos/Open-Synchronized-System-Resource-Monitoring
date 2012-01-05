@@ -7,6 +7,7 @@ Required:
      - Gem: rmagick (2.13.1+)
      - Gem: gruff (0.3.6+)
      - imagemagick (6.7.1+)
+				* Note you also need ImageMagick-devel package for the rmagick gem to install
  - perl 5+ on hosts you are monitoring
  - ssh with no auth (use public/private ssh key match)
 
