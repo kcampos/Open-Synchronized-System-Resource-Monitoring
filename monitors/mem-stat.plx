@@ -28,7 +28,7 @@ for ($i=1;$i<=$num_attempts;$i++)
 {	
 	foreach $pid (@pids)
 	{
-		my $cmd = "ps -eo pid,rss,vsize -ww | grep $pid | awk '{ print \$2,\$3 }'";
+		my $cmd = "ps -o pid,rss,vsize -p $pid -ww | grep $pid | awk '{ print \$2,\$3 }'";
 		my $out = `$cmd`;
 		chomp $out;
 		my ($rss, $vsz) = split(/ /, $out);
