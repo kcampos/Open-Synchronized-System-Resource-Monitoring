@@ -6,6 +6,7 @@
 					- '19710'
         :http_port: '80'
         :user: 'unix_user'
+				:sysstat: '7'
         :phases:
             1:
                 :cpu:
@@ -22,6 +23,7 @@
 					- '11346'
         :http_port: '80'
         :user: 'unix_user'
+				:sysstat: '9'
         :phases:
             1:
                 :cpu:
@@ -38,6 +40,7 @@
 					- 'ALL'
         :http_port: '1521'
         :user: 'unix_user'
+				:sysstat: '7'
         :sys_user: 'sys'
 		    :sys_pass: 'fakeSysPass'
 		    :schemas:

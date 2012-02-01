@@ -135,6 +135,7 @@ def start_monitors
     debug_msg("Working with host [#{host}]")
     
     p[:host][host] = {} 
+    p[:host][host][:cpu_pid_cmd] = (@config[:hosts][host][:sysstat] == "9"  ? "pidstat -u -p" : "sar -u -x")
     p[:host][host][:phase] = {}
     p[:host][host][:fpid] = fork do
       
@@ -187,7 +188,7 @@ def start_monitors
               if(@config[:hosts][host][:phases][phase][:cpu])
                 # Forked cpu cmd
                 cpu_cmd = (pid == 'ALL' ? "sar -u #{@config[:hosts][host][:phases][phase][:cpu][:interval]} #{@config[:hosts][host][:phases][phase][:cpu][:amount]}" :
-                                          "sar -u -x #{pid} #{@config[:hosts][host][:phases][phase][:cpu][:interval]} #{@config[:hosts][host][:phases][phase][:cpu][:amount]}")
+                                          "#{p[:host][host][:cpu_pid_cmd]} #{pid} #{@config[:hosts][host][:phases][phase][:cpu][:interval]} #{@config[:hosts][host][:phases][phase][:cpu][:amount]}")
                                           
                 p[:host][host][:phase][phase][:pids][pid][:cpu] = run_remote_cmd(@config[:hosts][host][:user], host, cpu_cmd,
                   "#{@config[:base_log_name]}-#{host}-phase#{phase}-cpu_stats.log", nil
