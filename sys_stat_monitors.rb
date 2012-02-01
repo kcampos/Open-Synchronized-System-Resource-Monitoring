@@ -135,7 +135,7 @@ def start_monitors
     debug_msg("Working with host [#{host}]")
     
     p[:host][host] = {} 
-    p[:host][host][:cpu_pid_cmd] = (@config[:hosts][host][:sysstat] == "9"  ? "pidstat -u -p" : "sar -u -x")
+    p[:host][host][:cpu_pid_cmd] = (@config[:hosts][host][:sysstat] == "9"  ? "pidstat -u -I -p" : "sar -u -x")
     p[:host][host][:phase] = {}
     p[:host][host][:fpid] = fork do
       
