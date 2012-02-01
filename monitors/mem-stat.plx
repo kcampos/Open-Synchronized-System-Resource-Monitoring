@@ -40,7 +40,7 @@ for ($i=1;$i<=$num_attempts;$i++)
 			$line =~ s/^\s+//;
 			my ($tmp_rss, $tmp_vsz) = split(/ /, $line);
 			$rss += $tmp_rss;
-			$vsz += ($iter == 1 ? $tmp_vsz : 0) # Only capture parent VSZ value
+			$vsz += ($iter == 1 ? $tmp_vsz : 0); # Only capture parent VSZ value
 			$iter++;
 		}
 		
