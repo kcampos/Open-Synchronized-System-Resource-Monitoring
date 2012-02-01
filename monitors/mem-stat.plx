@@ -33,13 +33,15 @@ for ($i=1;$i<=$num_attempts;$i++)
 		my $cmd = "ps -o rss,vsize -p $pid --ppid $pid -ww --no-headers ";
 		my @out = `$cmd`;
 		my ($rss, $vsz) = 0;
+		my $iter = 1;
 		foreach my $line (@out)
 		{
 			chomp $line;
 			$line =~ s/^\s+//;
 			my ($tmp_rss, $tmp_vsz) = split(/ /, $line);
 			$rss += $tmp_rss;
-			$vsz += $tmp_vsz;
+			$vsz += ($iter == 1 ? $tmp_vsz : 0) # Only capture parent VSZ value
+			$iter++;
 		}
 		
 		#print "PID: [$pid] RSS: [$rss] VSZ: [$vsz]\n";
