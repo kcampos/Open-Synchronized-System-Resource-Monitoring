@@ -1,12 +1,13 @@
 ---
 :base_log_name: '1sesh_test'
 :hosts:
-    test-serv1.com:
+    staging.bioiq.com:
         :pids: 
-					- '19710'
+            - '19710'
         :http_port: '80'
+        :ssh_port: '22'
         :user: 'unix_user'
-				:sysstat: '7'
+        :sysstat: '7'
         :phases:
             1:
                 :cpu:
@@ -20,10 +21,11 @@
                     :amount: "200"
     test-serv2.com:
         :pids: 
-					- '11346'
+            - '11346'
         :http_port: '80'
+        :ssh_port: '1022'
         :user: 'unix_user'
-				:sysstat: '9'
+        :sysstat: '9'
         :phases:
             1:
                 :cpu:
@@ -37,15 +39,15 @@
                     :amount: "200"
     test-db-serv.com:
         :pids: 
-					- 'ALL'
+            - 'ALL'
         :http_port: '1521'
         :user: 'unix_user'
-				:sysstat: '7'
+        :sysstat: '7'
         :sys_user: 'sys'
-		    :sys_pass: 'fakeSysPass'
-		    :schemas:
-		        - 'SCHEMA_A'
-		        - 'SCHEMA_B'
+        :sys_pass: 'fakeSysPass'
+        :schemas:
+            - 'SCHEMA_A'
+            - 'SCHEMA_B'
         :phases:
             1:
                 :cpu:
@@ -57,6 +59,6 @@
                 :net:
                     :interval: "2"
                     :amount: "200"
-								:db:
-								    :interval: "5"
-								    :amount: "200"
+                :db:
+                    :interval: "5"
+                    :amount: "200"

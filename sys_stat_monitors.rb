@@ -93,8 +93,12 @@ end
 
 # run_cmd
 def run_remote_cmd(user, host, cmd, cmd_log, cmd_path=@options[:cmd_path], forked=true)
+  ssh_port = (@config[:hosts][host][:ssh_port] ? @config[:hosts][host][:ssh_port] : '22')
   debug_msg("exec: run_remote_cmd(#{user}, #{host}, #{cmd}, #{cmd_log}, #{cmd_path}, #{forked})")
-  cmd_type = (host == 'localhost' ? "sudo su - #{user} -c" : "ssh #{user}@#{host}")
+  
+  cmd_type = (host == 'localhost' ? "sudo su - #{user} -c" : "ssh -p #{ssh_port} #{user}@#{host}")
+  debug_msg("CMD: #{cmd_type} '#{cmd_path}#{cmd}'")
+  
   forked ? fork { `#{cmd_type} "#{cmd_path}#{cmd}" > #{cmd_log}` } : `#{cmd_type} "#{cmd_path}#{cmd}" > #{cmd_log}`
 end
 
